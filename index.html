@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DICOM RT Metadata Reader</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DICOM RT Metadata Reader</h1>
+            <p class="subtitle">Upload DICOM files to view RT Plan, RT Dose, and RT Structure metadata</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-content">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p class="drop-text">Drag and drop DICOM file here</p>
+                    <p class="drop-subtext">or</p>
+                    <button class="browse-btn" id="browseBtn">Browse Files</button>
+                    <input type="file" id="fileInput" accept=".dcm,.dicom" style="display: none;">
+                </div>
+            </div>
+        </div>
+
+        <div class="file-info" id="fileInfo" style="display: none;">
+            <h2>File Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Filename:</span>
+                    <span class="info-value" id="fileName">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">File Size:</span>
+                    <span class="info-value" id="fileSize">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metadata-section" id="metadataSection" style="display: none;">
+            <h2>DICOM Metadata</h2>
+            
+            <div class="metadata-tabs">
+                <button class="tab-btn active" data-tab="general">General</button>
+                <button class="tab-btn" data-tab="rtplan">RT Plan</button>
+                <button class="tab-btn" data-tab="rtdose">RT Dose</button>
+                <button class="tab-btn" data-tab="rtstruct">RT Structure</button>
+                <button class="tab-btn" data-tab="all">All Tags</button>
+            </div>
+
+            <div class="tab-content active" id="tab-general">
+                <div class="metadata-grid" id="generalMetadata"></div>
+            </div>
+
+            <div class="tab-content" id="tab-rtplan">
+                <div class="metadata-grid" id="rtplanMetadata"></div>
+            </div>
+
+            <div class="tab-content" id="tab-rtdose">
+                <div class="metadata-grid" id="rtdoseMetadata"></div>
+            </div>
+
+            <div class="tab-content" id="tab-rtstruct">
+                <div class="metadata-grid" id="rtstructMetadata"></div>
+            </div>
+
+            <div class="tab-content" id="tab-all">
+                <div class="metadata-table" id="allMetadata"></div>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage" style="display: none;"></div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Reading DICOM file...</p>
+        </div>
+        <button class="clear-btn" id="clearBtn" style="display: none;">Clear & Upload New File</button>
+    </div>
+
+    <!-- Load dicomParser library from CDN -->
+    <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script>
+    <script>
+        // Verify dicomParser is loaded before proceeding
+        window.addEventListener('load', function() {
+            if (typeof dicomParser === 'undefined') {
+                console.error('dicomParser failed to load from CDN');
+                // Try alternative CDN
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/dicom-parser@1.8.21/dist/dicomParser.min.js';
+                script.onload = function() {
+                    console.log('dicomParser loaded from fallback CDN');
+                };
+                script.onerror = function() {
+                    console.error('All CDN attempts failed');
+                    const errorMsg = document.getElementById('errorMessage');
+                    if (errorMsg) {
+                        errorMsg.innerHTML = 'Error: Failed to load dicomParser library.<br><br>Solutions:<br>1. Check your internet connection<br>2. Download <a href="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js" target="_blank">dicomParser.min.js</a> and place it in this folder, then update index.html to use: &lt;script src="dicomParser.min.js"&gt;&lt;/script&gt;';
+                        errorMsg.style.display = 'block';
+                    }
+                };
+                document.head.appendChild(script);
+            } else {
+                console.log('dicomParser loaded successfully');
+            }
+        });
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
